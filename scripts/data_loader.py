@@ -10,7 +10,7 @@ def load_running_data(filepath):
         
         # Ensure numeric columns are correctly typed
         df['distance_km'] = pd.to_numeric(df['distance_km'], errors='coerce')
-        df['pace_min_per_km'] = pd.to_numeric(df['pace_min_per_km'], errors='coerce')
+        df['pace_min_per_km'] = pd.to_numeric(df['pace_min_km'], errors='coerce')
         
         return df
     except Exception as e:
