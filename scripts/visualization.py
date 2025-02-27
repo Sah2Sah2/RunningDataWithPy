@@ -18,9 +18,8 @@ def plot_monthly_trends(df):
 
     fig.autofmt_xdate()
     plt.title("Monthly Running Trends")
-    plt.show()
+    return fig
 
-# Example usage
 if __name__ == "__main__":
     from data_loader import load_running_data
     df = load_running_data("../data/sample_running_data.csv")
