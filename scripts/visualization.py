@@ -1,10 +1,17 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd  
 
 def plot_monthly_trends(df):
     """Plot monthly running distance and pace trends."""
-    df['month'] = df['date'].dt.to_period('M')
-    monthly_stats = df.groupby('month').agg({'distance_km': 'sum', 'pace_min_per_km': 'mean'}).reset_index()
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    
+    df['month'] = df['timestamp'].dt.to_period('M')
+    
+    monthly_stats = df.groupby('month').agg({
+        'distance_km': 'sum',
+        'pace_min_per_km': 'mean'
+    }).reset_index()
     
     fig, ax1 = plt.subplots(figsize=(10, 5))
 
@@ -22,6 +29,8 @@ def plot_monthly_trends(df):
 
 if __name__ == "__main__":
     from data_loader import load_running_data
-    df = load_running_data("../data/sample_running_data.csv")
+    df = load_running_data()
+    
     if df is not None:
-        plot_monthly_trends(df)
+        fig = plot_monthly_trends(df)
+        plt.show()
