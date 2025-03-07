@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd  
+import numpy as np 
 
+# Line chart for monthly trends (pace and kms)
 def plot_monthly_trends(df):
     """Plot monthly running distance and pace trends."""
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -25,14 +27,64 @@ def plot_monthly_trends(df):
     plt.title("Monthly Running Trends")
     return fig
 
+# Pie chart for shoes usage 
 def plot_shoes_usage(df):
     """Pie chart for shoe usage in 2024."""
     shoe_counts = df['shoes'].value_counts()
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.pie(shoe_counts, labels=shoe_counts.index, autopct='%1.1f%%', startangle=90, colors=sns.color_palette("pastel"))
-    ax.set_title("Shoes Usage in 2024")
+
+    def autopct_func(pct, allvals):
+        # do not display % labels for % < than 4
+        return f'{pct:.1f}%' if pct >= 4 else ''
+
+    # Create the pie chart
+    wedges, texts, autotexts = ax.pie(shoe_counts, labels=shoe_counts.index, autopct=lambda pct: autopct_func(pct, shoe_counts),
+                                       startangle=90, colors=sns.color_palette("pastel"), textprops={'fontsize': 10})
+
+    # Optimize space to a better visualization experience
+    # Find the two smallest slices 
+    small_slices_threshold = 5  # < than 5%
+    small_slices_indices = [i for i, count in enumerate(shoe_counts) if count < small_slices_threshold]
+
+    for i, text in enumerate(texts):
+        angle = (wedges[i].theta2 + wedges[i].theta1) / 2  # Calculate middle angle of the slice
+
+        # For small slices = further apart
+        if shoe_counts[i] < small_slices_threshold:
+            # If it's one of the two smallest slices, give it extra space
+            if i == small_slices_indices[0]:
+                offset = 1.25 # Slightly reduce the offset for the first smallest slice
+            elif i == small_slices_indices[1]:
+                offset = 1.3  # Slightly reduce the offset for the second smallest slice
+            else:
+                offset = 1.1 + (i * 0.03)  # Reduce the offset for other small slices to be closer
+
+            text.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
+        else:
+            # Larger slices
+            offset = 1.2  
+            text.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
+
+        # Adjust the label's alignment based on its position
+        if np.cos(np.radians(angle)) < 0:
+            text.set_horizontalalignment('right')
+        else:
+            text.set_horizontalalignment('left')
+
+    # Adjust percentage text positioning to fit in smaller slices
+    for i, autotext in enumerate(autotexts):
+        angle = (wedges[i].theta2 + wedges[i].theta1) / 2  # Calculate angle for each slice
+        offset = 0.7  # Move percentage labels slightly toward the outer edge 
+        autotext.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
+        autotext.set_fontsize(10)
+        autotext.set_fontweight('bold')
+
+    # Set title with more padding to avoid overlap
+    ax.set_title("Shoes Usage in 2024", fontsize=18, pad=30)  
+
     return fig
 
+# Bar chart for positive elevation gain
 def plot_elevation_gain(df):
     """Plot monthly elevation gain."""
     df['month'] = df['timestamp'].dt.to_period('M')
@@ -49,6 +101,7 @@ def plot_elevation_gain(df):
     fig.autofmt_xdate()
     return fig
 
+# Bar chart for monthly distance
 def plot_monthly_distance(df):
     """Bar plot for total monthly distance."""
     df['month'] = df['timestamp'].dt.to_period('M')
