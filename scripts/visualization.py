@@ -30,7 +30,7 @@ def plot_monthly_trends(df):
     ax2.plot(monthly_stats["month"].astype(str), monthly_stats["pace_min_per_km"], marker='s', color=pastel_red, linestyle="dashed", label="Pace")
 
     fig.autofmt_xdate()
-    plt.title("Monthly Running Trends")
+    plt.title("Monthly Running Trends", fontsize=18, loc='center', pad=20)
     return fig
 
 # Pie chart for shoes usage 
@@ -86,7 +86,7 @@ def plot_shoes_usage(df):
         autotext.set_fontweight('bold')
 
     # Set title with more padding to avoid overlap
-    ax.set_title("Shoes Usage in 2024", fontsize=18, pad=30)  
+    ax.set_title("Shoes Usage in 2024", fontsize=18, loc='center', pad=20)
 
     return fig
 
@@ -107,7 +107,7 @@ def plot_elevation_gain(df):
     
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Elevation Gain (m)")
-    ax.set_title("Monthly Elevation Gain")
+    ax.set_title("Monthly Elevation Gain", fontsize=18, loc='center', pad=20)
     fig.autofmt_xdate()
     return fig
 
@@ -125,7 +125,7 @@ def plot_monthly_distance(df):
     
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Distance (km)")
-    ax.set_title("Monthly Distance")
+    ax.set_title("Monthly Distance", fontsize=18, loc='center', pad=20)
     fig.autofmt_xdate()
     return fig
 
