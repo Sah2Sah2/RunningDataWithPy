@@ -5,7 +5,7 @@ import numpy as np
 
 # Line chart for monthly trends (pace and kms)
 def plot_monthly_trends(df):
-    """Plot monthly running distance and pace trends."""
+    """Plot monthly running distance and pace trends with pastel colors."""
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df['month'] = df['timestamp'].dt.to_period('M')
     
@@ -17,11 +17,17 @@ def plot_monthly_trends(df):
     fig, ax1 = plt.subplots(figsize=(10, 5))
     ax1.set_xlabel("Month")
     ax1.set_ylabel("Total Distance (km)", color="tab:blue")
-    ax1.plot(monthly_stats["month"].astype(str), monthly_stats["distance_km"], marker='o', color="tab:blue", label="Distance")
+    
+    # Pastel Blue for distance
+    pastel_blue = sns.color_palette("Blues")[2]
+    ax1.plot(monthly_stats["month"].astype(str), monthly_stats["distance_km"], marker='o', color=pastel_blue, label="Distance")
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("Avg Pace (min/km)", color="tab:red")
-    ax2.plot(monthly_stats["month"].astype(str), monthly_stats["pace_min_per_km"], marker='s', color="tab:red", linestyle="dashed", label="Pace")
+    
+    # Pastel Red for pace
+    pastel_red = sns.color_palette("Reds")[2]
+    ax2.plot(monthly_stats["month"].astype(str), monthly_stats["pace_min_per_km"], marker='s', color=pastel_red, linestyle="dashed", label="Pace")
 
     fig.autofmt_xdate()
     plt.title("Monthly Running Trends")
