@@ -65,6 +65,9 @@ def load_running_data():
     
     # Calculate pace in min/km
     df['pace_min_per_km'] = df['avg_pace']
+
+    # Calculate moving average pace
+    df['moving_avg_pace'] = df['pace_min_per_km'].rolling(window=3).mean()
     
     # Include columns in DF to process the data and plotting
     df = df[['timestamp', 'distance_km', 'pace_min_per_km', 'elevation_gain', 'shoes', 'calories']]

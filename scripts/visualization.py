@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import plotly.express as px
 import seaborn as sns
 import pandas as pd  
 import numpy as np 
@@ -36,6 +37,10 @@ def plot_monthly_trends(df):
 # Pie chart for shoes usage 
 def plot_shoes_usage(df):
     """Pie chart for shoe usage in 2024."""
+
+    # Remove Unknown
+    df = df[df['shoes'] != 'Unknown']
+
     shoe_counts = df['shoes'].value_counts()
     fig, ax = plt.subplots(figsize=(8, 8))
 
@@ -132,15 +137,16 @@ def plot_monthly_distance(df):
 # Dot plot for fastest pace for shoe
 def plot_fastest_pace_per_shoe(df):
     """Dot plot for the fastest pace done with each shoe, excluding 'Unknown' shoes."""
-    # Remove 'Unknown'
-    df = df[df['shoes'] != 'Unknown']
+    # Remove Unknown
+    df['shoes'] = df['shoes']
+    df = df[df['shoes'] != 'unknown']  
 
     # Calculate the fastest pace for each shoe
     fastest_paces = df.groupby('shoes')['fastest_pace_min_per_km'].min().reset_index()
 
     fig, ax = plt.subplots(figsize=(10, 5))
 
-    # Pastel color palette for dots
+    # Pastel colors
     pastel_colors = sns.color_palette("pastel")
 
     # Create the dot plot 
@@ -157,6 +163,7 @@ def plot_fastest_pace_per_shoe(df):
     plt.xticks(rotation=45, ha='right')  # Rotate names due to lenght
 
     return fig
+
 
 
 if __name__ == "__main__":
