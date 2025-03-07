@@ -107,12 +107,16 @@ def plot_elevation_gain(df):
 
 # Bar chart for monthly distance
 def plot_monthly_distance(df):
-    """Bar plot for total monthly distance."""
+    """Bar plot for total monthly distance with pastel blue color."""
     df['month'] = df['timestamp'].dt.to_period('M')
     monthly_distance = df.groupby('month')['distance_km'].sum().reset_index()
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.barplot(x=monthly_distance['month'].astype(str), y=monthly_distance['distance_km'], color="blue", ax=ax)
+    
+    # Pastel blue 
+    pastel_blue = sns.color_palette("Blues")[2]  
+    sns.barplot(x=monthly_distance['month'].astype(str), y=monthly_distance['distance_km'], color=pastel_blue, ax=ax)
+    
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Distance (km)")
     ax.set_title("Monthly Distance")
@@ -134,5 +138,3 @@ if __name__ == "__main__":
         plt.figure()
         plot_monthly_distance(df)
         plt.show()
-
-        
