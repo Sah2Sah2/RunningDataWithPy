@@ -10,7 +10,7 @@ from scripts.visualization import (
     plot_monthly_distance
 )
 
-df = None 
+df = None
 
 st.title("🏃🏻‍♀️ Running Data Dashboard")
 
@@ -18,10 +18,20 @@ st.title("🏃🏻‍♀️ Running Data Dashboard")
 try:
     df = load_running_data()
 
-    # Remove "Unknown" shoes from the dataframe immediately after loading
+    # Remove "Unknown" 
     if df is not None:
+        # Apply filter based on shoe
+        selected_shoe = st.sidebar.selectbox("Select Shoes", ["All"] + list(df['shoes'].unique()), index=0)
+        if selected_shoe != "All":
+            df = df[df['shoes'] == selected_shoe]
+            st.write(f"✅ Filter applied: {selected_shoe}")
+        else:
+            st.write("✅ Showing all shoes")
+        
+        # Remove "Unknown" 
         df = df[df['shoes'] != 'Unknown']
 
+        # Plot
         st.subheader("📊 Monthly Trends")
         st.pyplot(plot_monthly_trends(df))  
 
@@ -43,26 +53,7 @@ try:
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
-if df is not None:
-    st.sidebar.title("Filters")
-
-    # Filter shoes excluding "Unknown" shoes
-    shoe_options = ["All"] + list(df['shoes'].unique())
-
-    # Dropdown menu
-    selected_shoe = st.sidebar.selectbox("Select Shoes", shoe_options, index=0)
-
-    # Apply filter based on selected shoe
-    if selected_shoe != "All":
-        df = df[df['shoes'] == selected_shoe]
-        st.write(f"✅ Filter applied: {selected_shoe}")
-    else:
-        st.write("✅ Showing all shoes")
-
-else:
-    st.warning("No data available.")
-
-# CSS
+# CSS 
 st.markdown("""
     <style>
         .download-button-container {
@@ -85,6 +76,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Button to download data as CSV file with custom styles
+# Button to download data as CSV file 
 csv = df.to_csv(index=False)
 st.markdown('<div class="download-button-container"><button class="download-button" onclick="window.location.href=\'data:text/csv;charset=utf-8,' + csv + '\'">Download Data as CSV</button></div>', unsafe_allow_html=True)

@@ -110,15 +110,21 @@ def plot_elevation_gain(df):
     pastel_green = sns.color_palette("Greens")[2]  
     sns.barplot(x=monthly_elevation['month'].astype(str), y=monthly_elevation['elevation_gain'], color=pastel_green, ax=ax)
     
+    # Num
+    for i, row in monthly_elevation.iterrows():
+        ax.text(i, row['elevation_gain'] + 4, f"{row['elevation_gain']:.0f}",  # Space between num and column
+                horizontalalignment='center', verticalalignment='bottom', fontsize=10)
+    
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Elevation Gain (m)")
     ax.set_title("Monthly Elevation Gain", fontsize=18, loc='center', pad=20)
     fig.autofmt_xdate()
+
     return fig
 
 # Bar chart for monthly distance
 def plot_monthly_distance(df):
-    """Bar plot for total monthly distance with pastel blue color."""
+    """Bar plot for total monthly distance."""
     df['month'] = df['timestamp'].dt.to_period('M')
     monthly_distance = df.groupby('month')['distance_km'].sum().reset_index()
 
@@ -127,11 +133,20 @@ def plot_monthly_distance(df):
     # Pastel blue 
     pastel_blue = sns.color_palette("Blues")[2]  
     sns.barplot(x=monthly_distance['month'].astype(str), y=monthly_distance['distance_km'], color=pastel_blue, ax=ax)
-    
+
+    # Add numbers on top of the bars 
+    for i, row in monthly_distance.iterrows():
+        ax.text(i, row['distance_km'] + 3, f"{row['distance_km']:.1f}",  # Space between the number and top of the bar
+                horizontalalignment='center', verticalalignment='bottom', fontsize=10,
+                bbox=dict(facecolor='white', edgecolor='none', boxstyle='round,pad=0.25'))  
+
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Distance (km)")
     ax.set_title("Monthly Distance", fontsize=18, loc='center', pad=20)
     fig.autofmt_xdate()
+
+    plt.subplots_adjust(top=0.9, bottom=0.2)
+
     return fig
 
 # Dot plot for fastest pace for shoe
@@ -163,8 +178,6 @@ def plot_fastest_pace_per_shoe(df):
     plt.xticks(rotation=45, ha='right')  # Rotate names due to lenght
 
     return fig
-
-
 
 if __name__ == "__main__":
     from data_loader import load_running_data
