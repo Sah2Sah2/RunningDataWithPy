@@ -31,7 +31,7 @@ except Exception as e:
 
 # Process the CSV file to filter running activities
 for index, row in df.iterrows():
-    # Filter for running activities
+    # Filter for running activities only
     try:
         if row['Activity Type'] == 'Run':
             timestamp = pd.to_datetime(row['Activity Date'])
@@ -69,3 +69,5 @@ for doc in collection.find():
     print(doc)
 
 print("Running activities uploaded successfully!")
+
+

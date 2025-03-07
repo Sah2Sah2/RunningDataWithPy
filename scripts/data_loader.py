@@ -56,13 +56,15 @@ def load_running_data():
         print("NaN values found in the columns after conversion.")
         return None 
     
-    # Calculate distance in kilometers 
+    # Calculate distance in km
     df['distance_km'] = df['distance']
     
-    # Calculate pace in minutes per kilometer 
+    # Calculate pace in min/km
     df['pace_min_per_km'] = df['avg_pace']
     
-    # Drop unnecessary columns 
-    df = df[['timestamp', 'distance_km', 'pace_min_per_km', 'shoes', 'calories']]
+    # Include columns in DF to process the data and plotting
+    df = df[['timestamp', 'distance_km', 'pace_min_per_km', 'elevation_gain', 'shoes', 'calories']]
     
     return df
+
+
