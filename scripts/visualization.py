@@ -129,6 +129,36 @@ def plot_monthly_distance(df):
     fig.autofmt_xdate()
     return fig
 
+# Dot plot for fastest pace for shoe
+def plot_fastest_pace_per_shoe(df):
+    """Dot plot for the fastest pace done with each shoe, excluding 'Unknown' shoes."""
+    # Remove 'Unknown'
+    df = df[df['shoes'] != 'Unknown']
+
+    # Calculate the fastest pace for each shoe
+    fastest_paces = df.groupby('shoes')['fastest_pace_min_per_km'].min().reset_index()
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # Pastel color palette for dots
+    pastel_colors = sns.color_palette("pastel")
+
+    # Create the dot plot 
+    sns.stripplot(x='shoes', y='fastest_pace_min_per_km', data=fastest_paces, palette=pastel_colors, ax=ax, size=8, jitter=True)
+
+    # Add text to specify the pace next to dots
+    for i, row in fastest_paces.iterrows():
+        ax.text(i, row['fastest_pace_min_per_km'], f"{row['fastest_pace_min_per_km']:.2f}", 
+                horizontalalignment='center', verticalalignment='bottom', fontsize=10)
+
+    ax.set_xlabel("Shoes")
+    ax.set_ylabel("Fastest Pace (min/km)")
+    ax.set_title("Fastest Pace per Shoe", fontsize=18, loc='center', pad=20)
+    plt.xticks(rotation=45, ha='right')  # Rotate names due to lenght
+
+    return fig
+
+
 if __name__ == "__main__":
     from data_loader import load_running_data
     df = load_running_data()
@@ -144,3 +174,4 @@ if __name__ == "__main__":
         plt.figure()
         plot_monthly_distance(df)
         plt.show()
+

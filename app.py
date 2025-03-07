@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scripts.data_loader import load_running_data
 from scripts.visualization import (
+    plot_fastest_pace_per_shoe,
     plot_monthly_trends,
     plot_shoes_usage,
     plot_elevation_gain,
@@ -26,6 +27,9 @@ try:
 
         st.subheader("📍 Monthly Distance")
         st.pyplot(plot_monthly_distance(df))
+
+        st.subheader("🚀 Fastest Pace per Shoe")
+        st.pyplot(plot_fastest_pace_per_shoe(df))  
 
     else:
         st.warning("No running data found for 2024.")

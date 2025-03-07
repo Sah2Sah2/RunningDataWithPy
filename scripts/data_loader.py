@@ -4,7 +4,6 @@ import pandas as pd
 from datetime import datetime
 
 def load_running_data():
-
     # MongoDB connection
     uri = os.getenv("MongoDB_ConnectionString")  # Fetch URI from ENV VAR
     client = pymongo.MongoClient(uri)
@@ -34,11 +33,16 @@ def load_running_data():
     
     # Debugging
     print(f"Columns in DataFrame: {df.columns.tolist()}")
-    print(df.head())
+    print(df.head(10))
 
     if 'distance' not in df.columns or 'avg_pace' not in df.columns:
         print("Error: 'distance' or 'avg_pace' column is missing.")
         return None  
+    
+    # Check for missing values in 'shoes' column
+    if df['shoes'].isnull().any():
+        print("Warning: Missing values in the 'shoes' column.")
+        df['shoes'].fillna("Unknown", inplace=True)
     
     # Convert timestamp to datetime
     df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -64,6 +68,16 @@ def load_running_data():
     
     # Include columns in DF to process the data and plotting
     df = df[['timestamp', 'distance_km', 'pace_min_per_km', 'elevation_gain', 'shoes', 'calories']]
+    
+    # Calculate the fastest pace for shoes
+    fastest_paces = df.groupby('shoes')['pace_min_per_km'].min().reset_index()
+    fastest_paces = fastest_paces.rename(columns={'pace_min_per_km': 'fastest_pace_min_per_km'})
+    
+    # Add the fastest paces with the original DF
+    df = pd.merge(df, fastest_paces, on='shoes', how='left')
+    
+    # Debugging
+    print(f"Fastest paces per shoe:\n{fastest_paces}")
     
     return df
 
