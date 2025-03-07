@@ -86,7 +86,7 @@ def plot_shoes_usage(df):
 
 # Bar chart for positive elevation gain
 def plot_elevation_gain(df):
-    """Plot monthly elevation gain."""
+    """Plot monthly elevation gain with pastel green color."""
     df['month'] = df['timestamp'].dt.to_period('M')
     df['elevation_gain'] = df['elevation_gain'].fillna(0)
     df['elevation_gain'] = pd.to_numeric(df['elevation_gain'], errors='coerce')
@@ -94,7 +94,11 @@ def plot_elevation_gain(df):
     monthly_elevation = df.groupby('month')['elevation_gain'].sum().reset_index()
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    sns.barplot(x=monthly_elevation['month'].astype(str), y=monthly_elevation['elevation_gain'], color="green", ax=ax)
+    
+    # Pastel green 
+    pastel_green = sns.color_palette("Greens")[2]  
+    sns.barplot(x=monthly_elevation['month'].astype(str), y=monthly_elevation['elevation_gain'], color=pastel_green, ax=ax)
+    
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Elevation Gain (m)")
     ax.set_title("Monthly Elevation Gain")
