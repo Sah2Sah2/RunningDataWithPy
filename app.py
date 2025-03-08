@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import base64
+from fpdf import FPDF
 from scripts.data_loader import load_running_data
 from scripts.visualization import (
     plot_fastest_pace_per_shoe,
@@ -9,6 +11,8 @@ from scripts.visualization import (
     plot_elevation_gain,
     plot_monthly_distance
 )
+from io import BytesIO
+import tempfile
 
 df = None
 
@@ -33,19 +37,24 @@ try:
 
         # Plot
         st.subheader("📊 Monthly Trends")
-        st.pyplot(plot_monthly_trends(df))  
+        monthly_trends_fig = plot_monthly_trends(df)
+        st.pyplot(monthly_trends_fig)  
 
         st.subheader("👟 Shoes Usage")
-        st.pyplot(plot_shoes_usage(df))
+        shoes_usage_fig = plot_shoes_usage(df)
+        st.pyplot(shoes_usage_fig)
 
         st.subheader("⛰️ Monthly Elevation Gain")
-        st.pyplot(plot_elevation_gain(df))
+        elevation_gain_fig = plot_elevation_gain(df)
+        st.pyplot(elevation_gain_fig)
 
         st.subheader("📍 Monthly Distance")
-        st.pyplot(plot_monthly_distance(df))
+        monthly_distance_fig = plot_monthly_distance(df)
+        st.pyplot(monthly_distance_fig)
 
         st.subheader("🚀 Fastest Pace per Shoe")
-        st.pyplot(plot_fastest_pace_per_shoe(df))  
+        fastest_pace_fig = plot_fastest_pace_per_shoe(df)  
+        st.pyplot(fastest_pace_fig)
 
     else:
         st.warning("No running data found for 2024.")
@@ -53,21 +62,74 @@ try:
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
-import streamlit as st
-import pandas as pd
-import base64
-
-# CSV
+# Generate CSV for download
 csv = df.to_csv(index=False)
-b64 = base64.b64encode(csv.encode()).decode()  
-href = f'data:text/csv;base64,{b64}'
+b64_csv = base64.b64encode(csv.encode()).decode()  
+href_csv = f'data:text/csv;base64,{b64_csv}'
 
-# Download Button & CSS
+# Generate PDF for download
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", size=12)
+pdf.cell(200, 10, txt="Running Data Report", ln=True)
+
+def save_plot_to_bytes(fig):
+    """Save a Matplotlib figure to a BytesIO object"""
+    img_stream = BytesIO()
+    fig.savefig(img_stream, format='png')
+    img_stream.seek(0)
+    return img_stream
+
+monthly_trends_img = save_plot_to_bytes(monthly_trends_fig)
+shoes_usage_img = save_plot_to_bytes(shoes_usage_fig)
+elevation_gain_img = save_plot_to_bytes(elevation_gain_fig)
+monthly_distance_img = save_plot_to_bytes(monthly_distance_fig)
+fastest_pace_img = save_plot_to_bytes(fastest_pace_fig)
+
+def save_image_to_tempfile(image_stream):
+    """Save image from BytesIO stream to a temporary file."""
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+    temp_file.write(image_stream.read())
+    temp_file.close()
+    return temp_file.name
+
+monthly_trends_temp = save_image_to_tempfile(monthly_trends_img)
+shoes_usage_temp = save_image_to_tempfile(shoes_usage_img)
+elevation_gain_temp = save_image_to_tempfile(elevation_gain_img)
+monthly_distance_temp = save_image_to_tempfile(monthly_distance_img)
+fastest_pace_temp = save_image_to_tempfile(fastest_pace_img)
+
+# Add images to the PDF
+pdf.image(monthly_trends_temp, x=10, y=30, w=180)
+pdf.ln(85) 
+
+pdf.image(shoes_usage_temp, x=10, y=pdf.get_y(), w=180)
+pdf.ln(85)
+
+pdf.image(elevation_gain_temp, x=10, y=pdf.get_y(), w=180)
+pdf.ln(85)
+
+pdf.image(monthly_distance_temp, x=10, y=pdf.get_y(), w=180)
+pdf.ln(85)
+
+pdf.image(fastest_pace_temp, x=10, y=pdf.get_y(), w=180)
+
+
+pdf_output = pdf.output(dest='S').encode('latin1') 
+pdf_output_io = BytesIO(pdf_output)  
+pdf_output_io.seek(0)  
+
+# Convert PDF to base64
+b64_pdf = base64.b64encode(pdf_output_io.read()).decode()
+href_pdf = f"data:application/pdf;base64,{b64_pdf}"
+
+# CSS for download buttons
 st.markdown(f"""
     <style>
         .download-button-container {{
             display: flex;
             justify-content: center;
+            gap: 20px;
             margin-top: 50px;
         }}
         .download-button {{
@@ -86,6 +148,7 @@ st.markdown(f"""
         }}
     </style>
     <div class="download-button-container">
-        <a href="{href}" download="running_data.csv" class="download-button">Download Data as CSV</a>
+        <a href="{href_csv}" download="running_data.csv" class="download-button">Download CSV</a>
+        <a href="{href_pdf}" download="running_data.pdf" class="download-button">Download PDF</a>
     </div>
 """, unsafe_allow_html=True)

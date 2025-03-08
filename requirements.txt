@@ -29,6 +29,7 @@ fastjsonschema==2.21.1
 fitparse==1.2.0
 folium==0.19.4
 fonttools==4.55.8
+fpdf==1.7.2
 fqdn==1.5.1
 gitdb==4.0.12
 GitPython==3.1.44
@@ -75,6 +76,7 @@ pandocfilters==1.5.1
 parso==0.8.4
 pillow==11.1.0
 platformdirs==4.3.6
+plotly==6.0.0
 prometheus_client==0.21.1
 prompt_toolkit==3.0.50
 protobuf==5.29.3
