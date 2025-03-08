@@ -105,17 +105,24 @@ def plot_elevation_gain(df):
     fig, ax = plt.subplots(figsize=(10, 5))
     
     # Pastel green 
-    pastel_green = sns.color_palette("Greens")[2]  
-    sns.barplot(x=monthly_elevation['month'].astype(str), y=monthly_elevation['elevation_gain'], color=pastel_green, ax=ax)
+    pastel_green = sns.color_palette("Greens")[2]
+    ydata = monthly_elevation['elevation_gain']
+    sns.barplot(x=monthly_elevation['month'].astype(str), y=ydata, color=pastel_green, ax=ax)
     
     # Num
     for i, row in monthly_elevation.iterrows():
         ax.text(i, row['elevation_gain'] + 4, f"{row['elevation_gain']:.0f}",  # Space between num and column
                 horizontalalignment='center', verticalalignment='bottom', fontsize=10)
     
+    
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Elevation Gain (m)")
     ax.set_title("Monthly Elevation Gain", fontsize=18, loc='center', pad=20)
+    # Avoid text at upper boarder
+    top_offset = 250
+    limit_top = top_offset + ydata.max()
+    ax.set_ylim(top=limit_top)
+
     fig.autofmt_xdate()
 
     return fig
@@ -129,8 +136,9 @@ def plot_monthly_distance(df):
     fig, ax = plt.subplots(figsize=(10, 5))
     
     # Pastel blue 
-    pastel_blue = sns.color_palette("Blues")[2]  
-    sns.barplot(x=monthly_distance['month'].astype(str), y=monthly_distance['distance_km'], color=pastel_blue, ax=ax)
+    pastel_blue = sns.color_palette("Blues")[2]
+    ydata = monthly_distance['distance_km'] 
+    sns.barplot(x=monthly_distance['month'].astype(str), y=ydata, color=pastel_blue, ax=ax)
 
     # Add numbers on top of the bars 
     for i, row in monthly_distance.iterrows():
@@ -141,6 +149,11 @@ def plot_monthly_distance(df):
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Distance (km)")
     ax.set_title("Monthly Distance", fontsize=18, loc='center', pad=20)
+    # Avoid text at upper boarder
+    top_offset = 20
+    limit_top = top_offset + ydata.max()
+    ax.set_ylim(top=limit_top)
+
     fig.autofmt_xdate()
 
     plt.subplots_adjust(top=0.9, bottom=0.2)
