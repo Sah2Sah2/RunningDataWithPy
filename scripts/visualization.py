@@ -34,11 +34,11 @@ def plot_monthly_trends(df):
     plt.title("Monthly Running Trends", fontsize=18, loc='center', pad=20)
     return fig
 
-# Pie chart for shoes usage 
+# Pie chart for shoes usage
 def plot_shoes_usage(df):
     """Pie chart for shoe usage in 2024."""
 
-    # Remove Unknown
+    # Remove "Unknown"
     df = df[df['shoes'] != 'Unknown']
 
     shoe_counts = df['shoes'].value_counts()
@@ -53,44 +53,42 @@ def plot_shoes_usage(df):
                                        startangle=90, colors=sns.color_palette("pastel"), textprops={'fontsize': 10})
 
     # Optimize space to a better visualization experience
-    # Find the two smallest slices 
-    small_slices_threshold = 5  # < than 5%
-    small_slices_indices = [i for i, count in enumerate(shoe_counts) if count < small_slices_threshold]
+    # Find the slices that are less than 5%
+    small_slices_threshold = 5  # Less than 5%
+    small_slices_indices = [i for i, pct in enumerate(shoe_counts / shoe_counts.sum() * 100) if pct < small_slices_threshold]
 
+    # Adjust the labels
     for i, text in enumerate(texts):
-        angle = (wedges[i].theta2 + wedges[i].theta1) / 2  # Calculate middle angle of the slice
-
+        if i in small_slices_indices:
+            text.set_text('')  # no name <5%
+        
+        # Calculate angle for positioning
+        angle = (wedges[i].theta2 + wedges[i].theta1) / 2  # Mid angle of slice
+        
         # For small slices = further apart
         if shoe_counts[i] < small_slices_threshold:
-            # If it's one of the two smallest slices, give it extra space
-            if i == small_slices_indices[0]:
-                offset = 1.25 # Slightly reduce the offset for the first smallest slice
-            elif i == small_slices_indices[1]:
-                offset = 1.3  # Slightly reduce the offset for the second smallest slice
-            else:
-                offset = 1.1 + (i * 0.03)  # Reduce the offset for other small slices to be closer
-
-            text.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
+            offset = 1.1 + (i * 0.03)  # Reduce the offset for small slices
         else:
-            # Larger slices
-            offset = 1.2  
-            text.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
+            offset = 1.2  # Larger slices
 
-        # Adjust the label's alignment based on its position
+        # Adjust position
+        text.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
+
+        # Adjust horizontal alignment based on position
         if np.cos(np.radians(angle)) < 0:
             text.set_horizontalalignment('right')
         else:
             text.set_horizontalalignment('left')
 
-    # Adjust percentage text positioning to fit in smaller slices
+    # Adjust percentage text positioning
     for i, autotext in enumerate(autotexts):
-        angle = (wedges[i].theta2 + wedges[i].theta1) / 2  # Calculate angle for each slice
+        angle = (wedges[i].theta2 + wedges[i].theta1) / 2  # Mid angle of slice
         offset = 0.7  # Move percentage labels slightly toward the outer edge 
         autotext.set_position((offset * np.cos(np.radians(angle)), offset * np.sin(np.radians(angle))))
         autotext.set_fontsize(10)
         autotext.set_fontweight('bold')
 
-    # Set title with more padding to avoid overlap
+    # More space around title to not overlap
     ax.set_title("Shoes Usage in 2024", fontsize=18, loc='center', pad=20)
 
     return fig
@@ -194,4 +192,6 @@ if __name__ == "__main__":
         plt.figure()
         plot_monthly_distance(df)
         plt.show()
+
+
 
