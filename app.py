@@ -53,29 +53,39 @@ try:
 except Exception as e:
     st.error(f"An error occurred: {e}")
 
-# CSS 
-st.markdown("""
+import streamlit as st
+import pandas as pd
+import base64
+
+# CSV
+csv = df.to_csv(index=False)
+b64 = base64.b64encode(csv.encode()).decode()  
+href = f'data:text/csv;base64,{b64}'
+
+# Download Button & CSS
+st.markdown(f"""
     <style>
-        .download-button-container {
+        .download-button-container {{
             display: flex;
             justify-content: center;
             margin-top: 50px;
-        }
-        .download-button {
-            background-color: #FFD09B;  
+        }}
+        .download-button {{
+            background-color: #FFD09B;
             color: black;
             border: none;
             padding: 15px 25px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
-        }
-        .download-button:hover {
-            background-color: #FFB0B0;  
-        }
+            text-decoration: none;
+            display: inline-block;
+        }}
+        .download-button:hover {{
+            background-color: #FFB0B0;
+        }}
     </style>
-    """, unsafe_allow_html=True)
-
-# Button to download data as CSV file 
-csv = df.to_csv(index=False)
-st.markdown('<div class="download-button-container"><button class="download-button" onclick="window.location.href=\'data:text/csv;charset=utf-8,' + csv + '\'">Download Data as CSV</button></div>', unsafe_allow_html=True)
+    <div class="download-button-container">
+        <a href="{href}" download="running_data.csv" class="download-button">Download Data as CSV</a>
+    </div>
+""", unsafe_allow_html=True)
