@@ -69,9 +69,6 @@ href_csv = f'data:text/csv;base64,{b64_csv}'
 
 # Generate PDF for download
 pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Arial", size=12)
-pdf.cell(200, 10, txt="Running Data Report", ln=True)
 
 def save_plot_to_bytes(fig):
     """Save a Matplotlib figure to a BytesIO object"""
@@ -99,22 +96,20 @@ elevation_gain_temp = save_image_to_tempfile(elevation_gain_img)
 monthly_distance_temp = save_image_to_tempfile(monthly_distance_img)
 fastest_pace_temp = save_image_to_tempfile(fastest_pace_img)
 
+# New page
+def add_image_to_new_page(pdf, image_path):
+    """Add image to a new page in the PDF."""
+    pdf.add_page()  # new page to fit them all 
+    pdf.image(image_path, x=10, y=30, w=180)
+
 # Add images to the PDF
-pdf.image(monthly_trends_temp, x=10, y=30, w=180)
-pdf.ln(85) 
+add_image_to_new_page(pdf, monthly_trends_temp)
+add_image_to_new_page(pdf, shoes_usage_temp)
+add_image_to_new_page(pdf, elevation_gain_temp)
+add_image_to_new_page(pdf, monthly_distance_temp)
+add_image_to_new_page(pdf, fastest_pace_temp)
 
-pdf.image(shoes_usage_temp, x=10, y=pdf.get_y(), w=180)
-pdf.ln(85)
-
-pdf.image(elevation_gain_temp, x=10, y=pdf.get_y(), w=180)
-pdf.ln(85)
-
-pdf.image(monthly_distance_temp, x=10, y=pdf.get_y(), w=180)
-pdf.ln(85)
-
-pdf.image(fastest_pace_temp, x=10, y=pdf.get_y(), w=180)
-
-
+# Create PDF
 pdf_output = pdf.output(dest='S').encode('latin1') 
 pdf_output_io = BytesIO(pdf_output)  
 pdf_output_io.seek(0)  
@@ -148,7 +143,9 @@ st.markdown(f"""
         }}
     </style>
     <div class="download-button-container">
-        <a href="{href_csv}" download="running_data.csv" class="download-button">Download CSV</a>
-        <a href="{href_pdf}" download="running_data.pdf" class="download-button">Download PDF</a>
+        <a href="{href_csv}" download="running_data.csv" class="download-button">Download Running Data as CSV</a>
+        <a href="{href_pdf}" download="running_data.pdf" class="download-button">Download Charts as PDF</a>
     </div>
 """, unsafe_allow_html=True)
+
+
