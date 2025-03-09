@@ -3,6 +3,14 @@ import plotly.express as px
 import seaborn as sns
 import pandas as pd  
 import numpy as np 
+from matplotlib.ticker import MaxNLocator
+
+# Convert
+def format_pace(pace):
+    """Convert decimal pace (min/km) to mm:ss format."""
+    minutes = int(pace)
+    seconds = round((pace - minutes) * 60)
+    return f"{minutes}:{seconds:02d}"
 
 # Line chart for monthly trends (pace and kms)
 def plot_monthly_trends(df):
@@ -30,8 +38,14 @@ def plot_monthly_trends(df):
     pastel_red = sns.color_palette("Reds")[2]
     ax2.plot(monthly_stats["month"].astype(str), monthly_stats["pace_min_per_km"], marker='s', color=pastel_red, linestyle="dashed", label="Pace")
 
+    # Set pace axis with MaxNLocator
+    ax2.yaxis.set_major_locator(MaxNLocator(nbins=5))  # Limits the number to 5
+    pace_ticks = ax2.get_yticks()
+    ax2.set_yticklabels([format_pace(p) for p in pace_ticks])
+
     fig.autofmt_xdate()
     plt.title("Monthly Running Trends", fontsize=18, loc='center', pad=20)
+    
     return fig
 
 # Pie chart for shoes usage
@@ -102,6 +116,9 @@ def plot_elevation_gain(df):
 
     monthly_elevation = df.groupby('month')['elevation_gain'].sum().reset_index()
 
+    # Calculate total elevation gain for the year
+    total_elevation_gain = monthly_elevation['elevation_gain'].sum()
+
     fig, ax = plt.subplots(figsize=(10, 5))
     
     # Pastel green 
@@ -114,11 +131,21 @@ def plot_elevation_gain(df):
         ax.text(i, row['elevation_gain'] + 4, f"{row['elevation_gain']:.0f}",  # Space between num and column
                 horizontalalignment='center', verticalalignment='bottom', fontsize=10)
     
-    
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Elevation Gain (m)")
     ax.set_title("Monthly Elevation Gain", fontsize=18, loc='center', pad=20)
-    # Avoid text at upper boarder
+    
+    # Tot elev gain
+    ax.annotate(f"Total Elevation Gain: {total_elevation_gain:.0f} m", 
+                xy=(0.95, 0.95), 
+                xycoords='axes fraction', 
+                ha='right', 
+                va='top', 
+                fontsize=12, 
+                color='red', 
+                bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle="round,pad=0.3"))
+
+    # Avoid text at upper border
     top_offset = 250
     limit_top = top_offset + ydata.max()
     ax.set_ylim(top=limit_top)
@@ -131,7 +158,13 @@ def plot_elevation_gain(df):
 def plot_monthly_distance(df):
     """Bar plot for total monthly distance."""
     df['month'] = df['timestamp'].dt.to_period('M')
-    monthly_distance = df.groupby('month')['distance_km'].sum().reset_index()
+    
+    # Filter the data for 2024
+    df_2024 = df[df['timestamp'].dt.year == 2024]
+    monthly_distance = df_2024.groupby('month')['distance_km'].sum().reset_index()
+
+    # Calculate total distance for 2024
+    total_distance_2024 = monthly_distance['distance_km'].sum()
 
     fig, ax = plt.subplots(figsize=(10, 5))
     
@@ -149,7 +182,18 @@ def plot_monthly_distance(df):
     ax.set_xlabel("Month")
     ax.set_ylabel("Total Distance (km)")
     ax.set_title("Monthly Distance", fontsize=18, loc='center', pad=20)
-    # Avoid text at upper boarder
+    
+    # Tot distance 2024
+    ax.annotate(f"Total Distance 2024: {total_distance_2024:.1f} km", 
+                xy=(0.95, 0.95), 
+                xycoords='axes fraction', 
+                ha='right', 
+                va='top', 
+                fontsize=12, 
+                color='red', 
+                bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', boxstyle="round,pad=0.3"))
+
+    # Avoid text at upper border
     top_offset = 20
     limit_top = top_offset + ydata.max()
     ax.set_ylim(top=limit_top)
@@ -160,33 +204,40 @@ def plot_monthly_distance(df):
 
     return fig
 
+# Convert to pace format
+def format_pace(pace):
+    """Convert decimal pace (min/km) to mm:ss format."""
+    minutes = int(pace)
+    seconds = round((pace - minutes) * 60)
+    return f"{minutes}:{seconds:02d}"
+
 # Dot plot for fastest pace for shoe
 def plot_fastest_pace_per_shoe(df):
     """Dot plot for the fastest pace done with each shoe, excluding 'Unknown' shoes."""
-    # Remove Unknown
-    df['shoes'] = df['shoes']
-    df = df[df['shoes'] != 'unknown']  
+    df = df[df['shoes'] != 'Unknown']  
 
     # Calculate the fastest pace for each shoe
     fastest_paces = df.groupby('shoes')['fastest_pace_min_per_km'].min().reset_index()
-
+    
     fig, ax = plt.subplots(figsize=(10, 5))
 
     # Pastel colors
     pastel_colors = sns.color_palette("pastel")
 
     # Create the dot plot 
-    sns.stripplot(x='shoes', y='fastest_pace_min_per_km', data=fastest_paces, palette=pastel_colors, ax=ax, size=8, jitter=True)
+    sns.stripplot(x='shoes', y='fastest_pace_min_per_km', data=fastest_paces, 
+                  palette=pastel_colors, ax=ax, size=8, jitter=True)
 
     # Add text to specify the pace next to dots
     for i, row in fastest_paces.iterrows():
-        ax.text(i, row['fastest_pace_min_per_km'], f"{row['fastest_pace_min_per_km']:.2f}", 
+        formatted_pace = format_pace(row['fastest_pace_min_per_km'])
+        ax.text(i, row['fastest_pace_min_per_km'], formatted_pace, 
                 horizontalalignment='center', verticalalignment='bottom', fontsize=10)
 
     ax.set_xlabel("Shoes")
     ax.set_ylabel("Fastest Pace (min/km)")
     ax.set_title("Fastest Pace per Shoe", fontsize=18, loc='center', pad=20)
-    plt.xticks(rotation=45, ha='right')  # Rotate names due to lenght
+    plt.xticks(rotation=45, ha='right')  # Rotate shoe names for readability
 
     return fig
 
